@@ -101,7 +101,7 @@ pid file = ./.specjour/#{PID_FILE_NAME}
 
 [#{project_name}]
   path = .
-  exclude = .git* .specjour/rsync* doc tmp/* log
+  exclude = .git* .specjour/rsync* doc tmp/* log public/files
       CONFIG
     end
   end
