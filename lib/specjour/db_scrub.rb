@@ -45,7 +45,7 @@ module Specjour
     def purge_tables
       connection.disable_referential_integrity do
         tables_to_purge.each do |table|
-          connection.delete "delete from #{table}"
+          connection.delete "delete from `#{table}`"
         end
       end
     end
