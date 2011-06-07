@@ -4,13 +4,14 @@ module Specjour
     Thread.abort_on_exception = true
     include SocketHelper
 
-    attr_reader :project_alias, :managers, :manager_threads, :hosts, :options, :all_tests, :drb_connection_errors
+    attr_reader :project_alias, :managers, :manager_threads, :hosts, :options, :all_tests, :drb_connection_errors, :output_path
     attr_accessor :worker_size, :project_path
 
     def initialize(options = {})
       Specjour.load_custom_hooks
       @options = options
       @project_path = File.expand_path options[:project_path]
+      @output_path = options[:output_path]
       @worker_size = 0
       @managers = []
       @drb_connection_errors = Hash.new(0)
@@ -70,6 +71,7 @@ module Specjour
         puts "#{manager.hostname} (#{manager.worker_size})"
       end
       printer.worker_size = worker_size
+      printer.output_path = output_path
       command_managers(true) { |m| m.dispatch rescue DRb::DRbConnError }
     end
 

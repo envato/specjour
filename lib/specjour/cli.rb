@@ -10,6 +10,10 @@ module Specjour
       method_option :alias, :aliases => "-a", :desc => "Project name advertised to listeners"
     end
 
+    def self.output_option
+      method_option :output, :aliases => "-o", :desc => "Path to output build stats to integrate with CI"
+    end
+
     def self.start(original_args=ARGV, config={})
       real_tasks = all_tasks.keys | HELP_MAPPINGS
       unless real_tasks.include? original_args.first
@@ -41,9 +45,11 @@ module Specjour
     desc "dispatch [PROJECT_PATH]", "Run tests in the current directory"
     worker_option
     dispatcher_option
+    output_option
     def dispatch(path = Dir.pwd)
       handle_logging
       handle_workers
+      handle_output
       handle_dispatcher(path)
       append_to_program_name "dispatch"
       Specjour::Dispatcher.new(args).start
@@ -105,6 +111,10 @@ module Specjour
     def handle_dispatcher(path)
       args[:project_path] = path
       args[:project_alias] = args.delete(:alias)
+    end
+
+    def handle_output
+      args[:output_path] = options["output"]
     end
   end
 end

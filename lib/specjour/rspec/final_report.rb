@@ -1,15 +1,16 @@
 module Specjour
   module Rspec
     class FinalReport
-      attr_reader :duration, :example_count, :failure_count, :pending_count, :pending_examples, :failing_examples
+      attr_reader :duration, :example_count, :failure_count, :pending_count, :pending_examples, :failing_examples, :output_path
 
-      def initialize
+      def initialize(output_path = nil)
         @duration = 0.0
         @example_count = 0
         @failure_count = 0
         @pending_count = 0
         @pending_examples = []
         @failing_examples = []
+        @output_path = output_path
       end
 
       def add(stats)
@@ -47,7 +48,7 @@ module Specjour
         end
       end
 
-      def dump_yaml(path)
+      def dump_yaml
         results = {
           :stats => {
             :passed => (example_count - failure_count - pending_count),
@@ -66,20 +67,18 @@ module Specjour
           "'#{pending[0]}' @ #{pending[2]}"
         end
 
-        File.open(path, 'w') do |f|
+        File.open(output_path, 'w') do |f|
           f.write(results.to_yaml)
         end
       end
 
       def summarize
-        if ENV['OUTPUT_PATH']
-          dump_yaml(ENV['OUTPUT_PATH'])
-        end
-
         if example_count > 0
           formatter.dump_pending
           dump_failures
           formatter.dump_summary(duration, example_count, failure_count, pending_count)
+
+          dump_yaml if output_path
         end
       end
 

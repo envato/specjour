@@ -10,7 +10,7 @@ module Specjour
       new(specs_to_run).start
     end
 
-    attr_accessor :worker_size, :specs_to_run, :completed_workers, :disconnections, :profiler
+    attr_accessor :worker_size, :specs_to_run, :completed_workers, :disconnections, :profiler, :output_path
 
     def initialize(specs_to_run)
       super(
@@ -99,7 +99,7 @@ module Specjour
     end
 
     def rspec_report
-      @rspec_report ||= Rspec::FinalReport.new
+      @rspec_report ||= Rspec::FinalReport.new(output_path)
     end
 
     def cucumber_report
