@@ -47,7 +47,35 @@ module Specjour
         end
       end
 
+      def dump_yaml(path)
+        results = {
+          :stats => {
+            :passed => (example_count - failure_count - pending_count),
+            :failed => failure_count,
+            :pending => pending_count,
+            :undefined => 0, # what is this?
+          },
+          :runtime => duration
+        }
+
+        results[:failures] = failing_examples.map do |failure|
+          ([failure.header, failure.exception.message] + failure.exception.backtrace).join("\n")
+        end
+
+        results[:pending] = pending_examples.map do |pending|
+          "'#{pending[0]}' @ #{pending[2]}"
+        end
+
+        File.open(path, 'w') do |f|
+          f.write(results.to_yaml)
+        end
+      end
+
       def summarize
+        if ENV['OUTPUT_PATH']
+          dump_yaml(ENV['OUTPUT_PATH'])
+        end
+
         if example_count > 0
           formatter.dump_pending
           dump_failures
