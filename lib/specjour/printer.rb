@@ -57,6 +57,10 @@ module Specjour
       cucumber_report.add(summary)
     end
 
+    def output_path=(value)
+      rspec_report.output_path = value
+    end
+
     def add_to_profiler(client, args)
       test, time = *args
       self.profiler[test] = time
@@ -99,7 +103,7 @@ module Specjour
     end
 
     def rspec_report
-      @rspec_report ||= Rspec::FinalReport.new(output_path)
+      @rspec_report ||= Rspec::FinalReport.new
     end
 
     def cucumber_report

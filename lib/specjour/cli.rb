@@ -11,7 +11,7 @@ module Specjour
     end
 
     def self.output_option
-      method_option :output, :aliases => "-o", :desc => "Path to output build stats to integrate with CI"
+      method_option :output_path, :aliases => "-o", :desc => "Path to output build stats to integrate with CI"
     end
 
     def self.start(original_args=ARGV, config={})
@@ -114,7 +114,7 @@ module Specjour
     end
 
     def handle_output
-      args[:output_path] = options["output"]
+      args[:output_path] = options["output_path"]
     end
   end
 end

@@ -3,14 +3,17 @@ module Specjour
     class FinalReport
       attr_reader :duration, :example_count, :failure_count, :pending_count, :pending_examples, :failing_examples, :output_path
 
-      def initialize(output_path = nil)
+      def initialize
         @duration = 0.0
         @example_count = 0
         @failure_count = 0
         @pending_count = 0
         @pending_examples = []
         @failing_examples = []
-        @output_path = output_path
+      end
+
+      def output_path=(value)
+        @output_path = value
       end
 
       def add(stats)
