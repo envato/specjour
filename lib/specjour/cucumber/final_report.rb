@@ -1,13 +1,17 @@
 module Specjour
   module Cucumber
     class Summarizer
-      attr_reader :duration, :failing_scenarios, :step_summary
+      attr_reader :duration, :failing_scenarios, :step_summary, :output_path
       def initialize
         @duration = 0.0
         @failing_scenarios = []
         @step_summary = []
         @scenarios = Hash.new(0)
         @steps = Hash.new(0)
+      end
+
+      def output_path=(value)
+        @output_path = value
       end
 
       def increment(category, type, count)
@@ -46,6 +50,9 @@ module Specjour
 
     class FinalReport
       include ::Cucumber::Formatter::Console
+
+      attr_accessor :output_path
+
       def initialize
         @features = []
         @summarizer = Summarizer.new
@@ -57,6 +64,26 @@ module Specjour
 
       def exit_status
         @summarizer.failing_scenarios.empty?
+      end
+
+      def dump_yaml
+        results = {
+          :stats => {},
+          :runtime => @summarizer.duration,
+          :pending => []
+        }
+
+        [:passed, :pending, :failed, :undefined, :skipped].each do |status|
+          results[:stats][status] = @summarizer.steps(status).length
+        end
+
+        results[:failures] = @summarizer.step_summary.map do |failure|
+          failure.gsub(/\e\[\d+m/, '')
+        end
+
+        File.open(output_path, 'w') do |f|
+          f.write(results.to_yaml)
+        end
       end
 
       def summarize
@@ -76,6 +103,8 @@ module Specjour
         puts scenario_summary(@summarizer, &default_format)
         puts step_summary(@summarizer, &default_format)
         puts format_duration(@summarizer.duration) if @summarizer.duration
+
+        dump_yaml if output_path
       end
     end
   end

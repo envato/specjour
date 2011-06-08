@@ -57,8 +57,9 @@ module Specjour
       cucumber_report.add(summary)
     end
 
-    def output_path=(value)
-      rspec_report.output_path = value
+    def output_path=(path)
+      rspec_report.output_path = path
+      cucumber_report.output_path = path
     end
 
     def add_to_profiler(client, args)
