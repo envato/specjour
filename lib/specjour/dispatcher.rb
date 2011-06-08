@@ -4,7 +4,7 @@ module Specjour
     Thread.abort_on_exception = true
     include SocketHelper
 
-    attr_reader :project_alias, :managers, :manager_threads, :hosts, :options, :all_tests, :drb_connection_errors, :output_path
+    attr_reader :project_alias, :managers, :manager_threads, :hosts, :options, :all_tests, :drb_connection_errors, :output_path, :performance_path
     attr_accessor :worker_size, :project_path
 
     def initialize(options = {})
@@ -12,6 +12,7 @@ module Specjour
       @options = options
       @project_path = File.expand_path options[:project_path]
       @output_path = options[:output_path]
+      @performance_path = options[:performance_path]
       @worker_size = 0
       @managers = []
       @drb_connection_errors = Hash.new(0)
@@ -140,7 +141,9 @@ module Specjour
     end
 
     def printer
-      @printer ||= Printer.start(all_tests, @serial_specs)
+      @printer ||= Printer.start(all_tests, @serial_specs).tap do |printer|
+        printer.performance_path = performance_path
+      end
     end
 
     def project_alias

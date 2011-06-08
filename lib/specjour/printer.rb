@@ -6,13 +6,13 @@ module Specjour
     include Protocol
     RANDOM_PORT = 0
 
-    def self.start(specs_to_run, serial_specs = [])
-      new(specs_to_run, serial_specs).start
+    def self.start(*args)
+      new(*args).start
     end
 
-    attr_accessor :worker_size, :specs_to_run, :serial_specs, :completed_workers, :disconnections, :profiler, :output_path
+    attr_accessor :worker_size, :specs_to_run, :serial_specs, :completed_workers, :disconnections, :profiler, :output_path, :performance_path
 
-    def initialize(specs_to_run, serial_specs = [])
+    def initialize(specs_to_run, serial_specs = [], performance_path = '.specjour/performance')
       super(
         port = RANDOM_PORT,
         host = "0.0.0.0",
@@ -25,6 +25,7 @@ module Specjour
       @disconnections = 0
       @profiler = {}
 
+      self.performance_path = performance_path
       self.specs_to_run = run_order(specs_to_run)
       self.serial_specs = serial_specs
     end
@@ -109,8 +110,8 @@ module Specjour
     end
 
     def run_order(specs_to_run)
-      if File.exist?('.specjour/performance')
-        ordered_specs = File.readlines('.specjour/performance').map {|l| l.chop.split(':')[1]}
+      if File.exist?(performance_path)
+        ordered_specs = File.readlines(performance_path).map {|l| l.chop.split(':')[1]}
         (specs_to_run - ordered_specs) | (ordered_specs & specs_to_run)
       else
         specs_to_run
@@ -126,7 +127,7 @@ module Specjour
     end
 
     def record_performance
-      File.open('.specjour/performance', 'w') do |file|
+      File.open(performance_path, 'w') do |file|
         ordered_specs = profiler.to_a.sort_by {|a| -a[1].to_f}.map do |test, time|
           file.puts "%6f:%s" % [time, test]
         end

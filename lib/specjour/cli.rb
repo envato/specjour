@@ -14,6 +14,10 @@ module Specjour
       method_option :output_path, :aliases => "-o", :desc => "Path to output build stats to integrate with CI"
     end
 
+    def self.performance_option
+      method_option :performance_path, :aliases => "-p", :desc => "Path to store performance info"
+    end
+
     def self.start(original_args=ARGV, config={})
       real_tasks = all_tasks.keys | HELP_MAPPINGS
       unless real_tasks.include? original_args.first
@@ -46,10 +50,12 @@ module Specjour
     worker_option
     dispatcher_option
     output_option
+    performance_option
     def dispatch(path = Dir.pwd)
       handle_logging
       handle_workers
       handle_output
+      handle_performance
       handle_dispatcher(path)
       append_to_program_name "dispatch"
       Specjour::Dispatcher.new(args).start
@@ -115,6 +121,10 @@ module Specjour
 
     def handle_output
       args[:output_path] = options["output_path"]
+    end
+
+    def handle_performance
+      args[:performance_path] = options["performance_path"]
     end
   end
 end
