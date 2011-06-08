@@ -6,13 +6,13 @@ module Specjour
     include Protocol
     RANDOM_PORT = 0
 
-    def self.start(specs_to_run)
-      new(specs_to_run).start
+    def self.start(specs_to_run, serial_specs = [])
+      new(specs_to_run, serial_specs).start
     end
 
-    attr_accessor :worker_size, :specs_to_run, :completed_workers, :disconnections, :profiler, :output_path
+    attr_accessor :worker_size, :specs_to_run, :serial_specs, :completed_workers, :disconnections, :profiler, :output_path
 
-    def initialize(specs_to_run)
+    def initialize(specs_to_run, serial_specs = [])
       super(
         port = RANDOM_PORT,
         host = "0.0.0.0",
@@ -24,7 +24,9 @@ module Specjour
       @completed_workers = 0
       @disconnections = 0
       @profiler = {}
+
       self.specs_to_run = run_order(specs_to_run)
+      self.serial_specs = serial_specs
     end
 
     def serve(client)
@@ -36,8 +38,20 @@ module Specjour
 
     def ready(client)
       synchronize do
-        client.print specs_to_run.shift
-        client.flush
+        if @serial_spec_runner && @serial_spec_runner != client
+          sleep 2
+          client.print "_noop_"
+          client.flush
+        elsif !serial_specs.empty?
+          client.print(@serial_spec = serial_specs.shift)
+          client.flush
+          @serial_spec_runner = client
+          Specjour.logger.debug("Running serial spec #{@serial_spec}...")
+        else
+          @serial_spec_runner = nil
+          client.print specs_to_run.shift
+          client.flush
+        end
       end
     end
 

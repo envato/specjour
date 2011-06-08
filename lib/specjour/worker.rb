@@ -38,6 +38,7 @@ module Specjour
       run_times = Hash.new(0)
 
       while test = connection.next_test
+        next if test == '_noop_'
         print_status(test)
         time = Benchmark.realtime { run_test test }
         profile(test, time)

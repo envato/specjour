@@ -38,6 +38,13 @@ module Specjour
       else
         @all_tests = all_specs | all_features
       end
+      @serial_specs = @all_tests & serial_specs
+      @all_tests -= @serial_specs
+      @all_tests
+    end
+
+    def serial_specs
+      File.readlines("./.specjour/serial_specs").map { |f| f.strip } rescue []
     end
 
     def all_specs(tests_path = 'spec')
@@ -72,6 +79,7 @@ module Specjour
       end
       printer.worker_size = worker_size
       printer.output_path = output_path
+
       command_managers(true) { |m| m.dispatch rescue DRb::DRbConnError }
     end
 
@@ -94,6 +102,7 @@ module Specjour
       puts "No listeners found on this machine, starting one..."
       manager_options = {:worker_size => options[:worker_size], :registered_projects => [project_alias]}
       manager = Manager.start_quietly manager_options
+      @local_manager = manager
       fetch_manager(manager.drb_uri)
       at_exit do
         unless Specjour.interrupted?
@@ -131,7 +140,7 @@ module Specjour
     end
 
     def printer
-      @printer ||= Printer.start(all_tests)
+      @printer ||= Printer.start(all_tests, @serial_specs)
     end
 
     def project_alias
