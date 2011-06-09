@@ -141,9 +141,7 @@ module Specjour
     end
 
     def printer
-      @printer ||= Printer.start(all_tests, @serial_specs).tap do |printer|
-        printer.performance_path = performance_path
-      end
+      @printer ||= Printer.start(all_tests, @serial_specs, @performance_path)
     end
 
     def project_alias

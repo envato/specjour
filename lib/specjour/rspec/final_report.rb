@@ -70,7 +70,8 @@ module Specjour
           "'#{pending[0]}' @ #{pending[2]}"
         end
 
-        File.open(output_path, 'w') do |f|
+        Dir.mkdir(output_path) unless File.exists?(output_path)
+        File.open(File.join(output_path, 'specs.yml'), 'w') do |f|
           f.write(results.to_yaml)
         end
       end

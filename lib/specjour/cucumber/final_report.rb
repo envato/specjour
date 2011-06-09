@@ -81,12 +81,14 @@ module Specjour
           failure.gsub(/\e\[\d+m/, '')
         end
 
-        File.open(output_path, 'w') do |f|
+        Dir.mkdir(output_path) unless File.exists?(output_path)
+        File.open(File.join(output_path, 'features.yml'), 'w') do |f|
           f.write(results.to_yaml)
         end
       end
 
       def summarize
+        return if @summarizer.steps.length == 0
         if @summarizer.steps(:failed).any?
           puts "\n\n"
           @summarizer.step_summary.each {|f| puts f }
