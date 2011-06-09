@@ -12,7 +12,7 @@ module Specjour
 
     attr_accessor :worker_size, :specs_to_run, :serial_specs, :completed_workers, :disconnections, :profiler, :output_path, :performance_path
 
-    def initialize(specs_to_run, serial_specs = [], performance_path = '.specjour/performance')
+    def initialize(specs_to_run, serial_specs = [], performance_path = nil)
       super(
         port = RANDOM_PORT,
         host = "0.0.0.0",
@@ -25,7 +25,7 @@ module Specjour
       @disconnections = 0
       @profiler = {}
 
-      self.performance_path = performance_path
+      self.performance_path = performance_path || '.specjour/performance'
       self.specs_to_run = run_order(specs_to_run)
       self.serial_specs = serial_specs
     end
